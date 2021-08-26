@@ -2,6 +2,7 @@ const { isDef, isArrayAndNotEmpty } = require('./utils');
 
 var recursiveQuery = {
     // exemple -> { "only": ["nom"], "id": [1, 2]}
+    // rajouter dans le body -> "only": ["name"] <- où name correspond aux noms de colonnes que l'on veut ressortir
     createGetQuery: function (req, tableName) {
         let body = isDef(req.body) ? req.body : req;
         let target = (typeof body.only != "undefined") && Array.isArray(body.only) && body.only.length > 0 ? body.only.join(',') : "*";
@@ -89,7 +90,7 @@ var recursiveQuery = {
             finalStringColumn = valuesTable.join(', ');
             finalStringUpdate = keyUpdate.join(', ');
             let queryToReturn = "INSERT INTO " + tableName + finalStringColumn + "VALUES " + finalStringValues + " ON DUPLICATE KEY UPDATE " + finalStringUpdate;
-            console.log("getQuery -> " + queryToReturn);
+            console.log("insert-update Query -> " + queryToReturn);
             return queryToReturn;
         } else {
             // exemple de body {"id": 4, "idItems": "array id", "nom": "le pur name"}
@@ -99,7 +100,7 @@ var recursiveQuery = {
             let i = 1;
             let maxLength = Object.keys(body).length;
             for (const [key, value] of Object.entries(body)) {
-                if(isDef(value)){
+                if (isDef(value)) {
                     keyUpdate.push(
                         key + "=VALUES(" + key + ")"
                     );
@@ -137,7 +138,7 @@ var recursiveQuery = {
                             );
                         }
                     }
-                }else{
+                } else {
                     callback(null, "ERROR BODY");
                 }
                 i++;
@@ -155,7 +156,7 @@ var recursiveQuery = {
 
     },
 
-    createDeleteQuery: function(req, callback, tableName){
+    createDeleteQuery: function (req, callback, tableName) {
         let body = isDef(req.body) ? req.body : req;
         let table = [];
         console.log("body", body);
@@ -172,6 +173,6 @@ var recursiveQuery = {
         else return callback("ERROR PARAMETERS")
     }
 
-};  
+};
 
 module.exports = recursiveQuery;

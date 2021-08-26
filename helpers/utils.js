@@ -32,21 +32,12 @@ var Utils = {
         return Array.isArray(arr) && arr.length > 0
     },
 
-    createGetQuery: function (req) {
-        let body = isDef(req.body) ? req.body : req;
-        let target = (typeof body.only != "undefined") && Array.isArray(body.only) && body.only.length > 0 ? body.only.join(',') : "*";
-        let table = []
+    getArray: function (res) {
+        return Utils.isDef(res) && Array.isArray(res) && res.length > 0
+          ? Object.values(JSON.parse(JSON.stringify(res)))
+          : []
+    },
     
-        if (isDef(body.id)) {
-            (Array.isArray(body.id))
-                ? table.push("id IN (" + body.id.join(',') + ")")
-                : table.push("id = " + body.id)
-        }
-        if (!isDef(body.id)) table.push("1")
-    
-        let query = "SELECT " + target + " FROM " + tableName + " WHERE " + table.join('AND ')
-        console.log('query getCategory->', query);
-    }
   
 }
 

@@ -25,3 +25,8 @@ module.exports = connection;
 --------------------------------------
 
 npm i 
+
+
+pour import back prendre les noms des tables
+
+./genere-back table1 table2
