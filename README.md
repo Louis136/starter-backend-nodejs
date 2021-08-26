@@ -3,7 +3,11 @@ starter pack to create backend
 
 create db.js 
 exemple of one : 
+
+
 --------------------------------------
+
+
 var mysql = require('mysql');
 
 var connection = mysql.createPool({
@@ -16,6 +20,8 @@ var connection = mysql.createPool({
 
 
 module.exports = connection;
+
+
 --------------------------------------
 
 npm i 
