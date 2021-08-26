@@ -27,5 +27,8 @@ const slug = '/test';
 var categoryController = require('./category/categoryController')
 app.use(slug + '/category', categoryController);
 
+var categoryController = require('./user/userController')
+app.use(slug + '/user', categoryController);
+
 
 module.exports = app;

@@ -1,7 +1,7 @@
 var db = require('../db');
 const { isDef, isArrayAndNotEmpty } = require("../helpers/utils");
 const { createGetQuery, createUpdateInsertQuery, createDeleteQuery } = require("../helpers/recursiveQuery");
-const tableName = "tbl_category";
+const tableName = "user";
 
 var categoryModel = {
     getCategory: function (req, callback) {
