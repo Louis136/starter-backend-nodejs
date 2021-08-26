@@ -25,7 +25,7 @@ app.use(express.urlencoded({extended: false}));
 const slug = '/exemple';
 
 var exempleController = require('./exemple/exempleController')
-app.use(slug + '/loubet', exempleController);
+app.use(slug + '/example', exempleController);
 
 
 module.exports = app;
