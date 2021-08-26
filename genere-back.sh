@@ -5,8 +5,8 @@ do
 	cd ${var}
 	touch ${var}Model.js
 	echo "var db = require('../db');" > ${var}Model.js
-    echo "const { createGetQuery, createUpdateInsertQuery, createDeleteQuery } = require("../helpers/recursiveQuery");" >> ${var}Model.js
-    echo "const tableName = "${var}";" >> ${var}Model.js
+    echo "const { createGetQuery, createUpdateInsertQuery, createDeleteQuery } = require('../helpers/generiqueQuery');" >> ${var}Model.js
+    echo "const tableName = '${var}';" >> ${var}Model.js
     echo " " >> ${var}Model.js
     echo "var ${var}Model = {" >> ${var}Model.js
     echo "    get${var^}: function (req, callback) {" >> ${var}Model.js
@@ -27,7 +27,8 @@ do
     echo "module.exports = ${var}Model;" >> ${var}Model.js
     touch ${var}Controller.js
     echo "var express = require('express');" > ${var}Controller.js
-    echo "var ${var}Model = require("./${var}Model");" >> ${var}Controller.js
+    echo "var router = express.Router();" >> ${var}Controller.js
+    echo "var ${var}Model = require('./${var}Model');" >> ${var}Controller.js
     echo " " >> ${var}Controller.js
     echo "router.post('/', function (req, res) {" >> ${var}Controller.js
     echo "    ${var}Model.get${var^}(req, function(err, rows){" >> ${var}Controller.js
