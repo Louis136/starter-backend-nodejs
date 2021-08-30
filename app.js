@@ -22,10 +22,11 @@ app.use(express.urlencoded({extended: false}));
 // });
 
 
-const slug = '/exemple';
+const slug = '/test';
 
-var exempleController = require('./exemple/exempleController')
-app.use(slug + '/example', exempleController);
+
+var categoryController = require('./user/userController')
+app.use(slug + '/user', categoryController);
 
 
 module.exports = app;

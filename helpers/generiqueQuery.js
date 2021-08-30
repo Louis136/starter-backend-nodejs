@@ -1,23 +1,25 @@
 const { isDef, isArrayAndNotEmpty } = require('./utils');
-
+const {cleanQuery} = require('./functions')
 var recursiveQuery = {
-    // exemple -> { "only": ["nom"], "id": [1, 2]}
-    // rajouter dans le body -> "only": ["name"] <- où name correspond aux noms de colonnes que l'on veut ressortir
-    createGetQuery: function (req, tableName) {
-        let body = isDef(req.body) ? req.body : req;
-        let target = (typeof body.only != "undefined") && Array.isArray(body.only) && body.only.length > 0 ? body.only.join(',') : "*";
-        let table = []
-
-        if (isDef(body.id)) {
-            (Array.isArray(body.id))
-                ? table.push("id IN (" + body.id.join(',') + ")")
-                : table.push("id = " + body.id)
+  
+    createGetQuery: function (req, callback,tableName) {
+        // WHERE clause possible : "where" :{ "id" : 1 }/  "where" : {"id" : [1,2]} / "where" : {"name" : "lui"}  "where":{"name": {"like" : "e"}}
+  // exemple -> { "only": ["nom"], "id": [1, 2]}
+        var body = (typeof req.body != "undefined") ? cleanQuery(req.body) : req;
+        var where =  (typeof body.where != "undefined") ? body.where : ""
+        let only = (typeof body.only != "undefined") && Array.isArray(body.only) && body.only.length > 0 ? body.only.join(',') : "*"; 
+        var whereSend = []
+        for (const[key,value] of Object.entries(where)){
+            (typeof value == "number" ) ? whereSend.push(key+" = "+value) : null;
+            (typeof value == "string" ) ? whereSend.push(key+" = '"+value+"'") : null;
+            (Array.isArray(value)) && value.length>0 ? whereSend.push(key+" IN("+value.join(",")+")") : null;
+            (typeof value =="object" && typeof value.length == "undefined" ) ? typeof value.like != "undefined" ? whereSend.push(key +" LIKE '%"+value.like+"%'") :null :null
+            
         }
-        if (!isDef(body.id)) table.push("1")
+let sql = whereSend.length>0 ? "SELECT " + only + " FROM category WHERE " + whereSend.join(" AND ") : "SELECT " + only + " FROM user "
+console.log(sql)
+return sql
 
-        let query = "SELECT " + target + " FROM " + tableName + " WHERE " + table.join('AND ')
-        console.log('query ' + tableName + ' -> ' + query);
-        return query;
     },
 
     createUpdateInsertQuery: function (req, callback, tableName) {
@@ -52,28 +54,49 @@ var recursiveQuery = {
                         }
                         if (isDef(value)) {
                             if (i == 1) {
-                                valuesEntries.push(
-                                    "(" + value + ""
-                                );
-                            } else if (i < maxLength) {
-                                if (typeof value == "number") {
+                                if(key="id"){
                                     valuesEntries.push(
-                                        value + ""
+                                        "(" + value + ""
                                     );
-                                } else {
+                                }else{
                                     valuesEntries.push(
-                                        "'" + value + "'"
+                                        "('" + value + "'"
                                     );
                                 }
+                            
+                            } else if (i < maxLength) {
+                                switch (typeof value) {
+                                    case "number":
+                                        valuesEntries.push(
+                                            value + ")"
+                                        );
+                                        break;
+                                    case "string":
+                                        valuesEntries.push(
+                                            "'" + value + "')"
+                                        );
+                                        break;
+                                    case "object" :
+                                       valuesEntries.push("'"+JSON.stringify(value)+"')"
+                                        );
+                                        break;
+                                }
                             } else {
-                                if (typeof value == "number") {
-                                    valuesEntries.push(
-                                        value + ")"
-                                    );
-                                } else {
-                                    valuesEntries.push(
-                                        "'" + value + "')"
-                                    );
+                                switch (typeof value) {
+                                    case "number":
+                                        valuesEntries.push(
+                                            value + ")"
+                                        );
+                                        break;
+                                    case "string":
+                                        valuesEntries.push(
+                                            "'" + value + "')"
+                                        );
+                                        break;
+                                    case "object" :
+                                       valuesEntries.push("'"+JSON.stringify(value)+"')"
+                                        );
+                                        break;
                                 }
                             }
                             i++;
@@ -157,20 +180,21 @@ var recursiveQuery = {
     },
 
     createDeleteQuery: function (req, callback, tableName) {
-        let body = isDef(req.body) ? req.body : req;
+      // WHERE clause possible : "where" :{ "id" : 1 }/  "where" : {"id" : [1,2]} / "where" : {"name" : "lui"}  "where":{"name": {"like" : "e"}}
+        var body = (typeof req.body != "undefined") ? cleanQuery(req.body) : req;
+        var where =  (typeof body.where != "undefined") ? body.where : ""
         let table = [];
-        console.log("body", body);
-        if (isDef(body.id)) {
-            (Array.isArray(body.id))
-                ? table.push("id IN (" + body.id.join(',') + ")")
-                : table.push("id = " + body.id)
+        for (const[key,value] of Object.entries(where)){
+            (typeof value == "number" ) ? table.push(key+" = "+value) : null;
+            (typeof value == "string" ) ? table.push(key+" = '"+value+"'") : null;
+            (Array.isArray(value)) && value.length>0 ? table.push(key+" IN("+value.join(",")+")") : null;
+            (typeof value =="object" && typeof value.length == "undefined" ) ? typeof value.like != "undefined" ? whereSend.push(key +" LIKE '%"+value.like+"%'") :null :null
+
         }
-        if (isDef(body.id)) {
+   
             let queryToReturn = "DELETE FROM " + tableName + " WHERE " + table.join(" AND ")
             console.log("delete query -> " + queryToReturn);
             return queryToReturn;
-        }
-        else return callback("ERROR PARAMETERS")
     }
 
 };
